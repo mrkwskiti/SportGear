@@ -57,6 +57,11 @@ services:
             - db 
             - docker_proxy
 
+    frontend:
+        build: ./web
+        restart: always
+        ports:
+            - 3000:3000
         
 
 # networks:
