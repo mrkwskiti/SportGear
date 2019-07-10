@@ -7,7 +7,6 @@ services:
         ports:
             - "80:80"
         volumes:
-            - ./src:/app
             - ./nginx/nginx.conf:/etc/nginx/nginx.conf
              
     backend:
@@ -17,14 +16,14 @@ services:
         ports:
             - "8080:80"
         volumes:
-            - ./src:/app
+            - ./server/src:/app
             - ./nginx/site.conf:/etc/nginx/conf.d/default.conf
         # networks:
         #     - code-network
     php:
         image: php:7.3.6-fpm
         volumes:
-            - ./src:/app
+            - ./server/src:/app
         # networks:
         #     - code-network
 
@@ -32,7 +31,7 @@ services:
         image: composer:1.8.6
         command: bash -c "composer install && composer dump-autoload -o"
         volumes:
-            - ./src:/app
+            - ./server/src:/app
 
     db:
         image: mariadb
@@ -40,7 +39,7 @@ services:
             - '3306:3306'
         command: --init-file /init.sql
         volumes:
-            - ./sql/setup.sql:/init.sql
+            - ./server/sql/setup.sql:/init.sql
         environment:
             - MYSQL_ROOT_PASSWORD=1234
 
