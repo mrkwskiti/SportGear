@@ -21,7 +21,7 @@ services:
         # networks:
         #     - code-network
     php:
-        image: php:7.3.6-fpm
+        build: ./server/src/
         volumes:
             - ./server/src:/app
         # networks:
