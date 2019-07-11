@@ -96,6 +96,7 @@ services:
 volumes:
     vhost:
 
-# networks:
-#     code-network:
-#         driver: bridge
+networks:
+    default:
+        external:
+            name: geargame
