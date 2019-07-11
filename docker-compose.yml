@@ -69,6 +69,7 @@ services:
             - '3306:3306'
         command: --init-file /init.sql
         volumes:
+            - ./mariadb:/var/lib/mysql
             - ./server/sql/setup.sql:/init.sql
         environment:
             - MYSQL_ROOT_PASSWORD=1234
