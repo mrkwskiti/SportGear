@@ -1,0 +1,106 @@
+version: '2'
+
+services:
+    nginx-proxy:
+        image: jwilder/nginx-proxy
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:                     
+            - ./current/public:/usr/share/nginx/html
+            - ./certs:/etc/nginx/certs:ro
+            - vhost:/etc/nginx/vhost.d
+            # - /usr/share/nginx/html
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+        labels:
+            - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
+
+    letsencrypt:
+        image: jrcs/letsencrypt-nginx-proxy-companion
+        restart: always
+        volumes:
+            - ./certs:/etc/nginx/certs:rw
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - vhost:/etc/nginx/vhost.d
+            - ./current/public:/usr/share/nginx/html
+
+    website:
+        image: nginx:latest
+        restart: always
+        # ports:
+            # - "80:80"
+            # - "443:443"
+        environment:
+            - VIRTUAL_HOST=geargame30.eng.cmu.ac.th
+            - LETSENCRYPT_HOST=geargame30.eng.cmu.ac.th
+            - LETSENCRYPT_EMAIL=wasutan_kiti@cmu.ac.th
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            # - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+             
+    backend:
+        image: nginx:latest
+        links:
+            - website
+        ports:
+            - "8080:80"
+        volumes:
+            - ./server/src:/app
+            - ./nginx/site.conf:/etc/nginx/conf.d/default.conf
+        # networks:
+        #     - code-network
+    php:
+        build: ./server/src/
+        volumes:
+            - ./server/src:/app
+        # networks:
+        #     - code-network
+
+    composer:
+        image: composer:1.8.6
+        command: bash -c "composer install && composer dump-autoload -o"
+        volumes:
+            - ./server/src:/app
+
+    db:
+        image: mariadb
+        ports:
+            - '3306:3306'
+        command: --init-file /init.sql
+        volumes:
+            - ./mariadb:/var/lib/mysql
+            - ./server/sql/setup.sql:/init.sql
+        environment:
+            - MYSQL_ROOT_PASSWORD=1234
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        environment:
+            - PMA_HOST=db
+        restart: always
+        ports:
+            - 8081:80
+        volumes:
+            - /sessions
+        links:
+            - db 
+            - website
+
+    frontend:
+        build:
+            context: ./web
+            dockerfile: dev.Dockerfile
+        command: npm run dev
+        restart: always
+        ports:
+            - 3000:3000
+
+volumes:
+    vhost:
+
+networks:
+    default:
+        external:
+            name: geargame
