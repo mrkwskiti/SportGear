@@ -94,6 +94,18 @@ services:
         ports:
             - 3000:3000
 
+# dev services
+    dev-website:
+        image: nginx:latest
+        restart: always
+        # ports:
+            # - "80:80"
+            # - "443:443"
+        volumes:
+            - ./nginx/nginx-dev.conf:/etc/nginx/nginx.conf
+            # - ./nginx/default.conf:/etc/nginx/conf.d/default.conf 
+
+
 volumes:
     vhost:
 
