@@ -54,6 +54,7 @@ services:
         build: ./server/src/
         volumes:
             - ./logs:/app/logs:rw
+            - ./server/src:/app
         # networks:
         #     - code-network
 
