@@ -52,8 +52,6 @@ services:
         #     - code-network
     php:
         build: ./server/src/
-        volumes:
-            - ./server/src:/app
         # networks:
         #     - code-network
 
